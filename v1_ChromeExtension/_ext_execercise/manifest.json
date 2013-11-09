@@ -1,0 +1,17 @@
+{
+  "manifest_version": 2,
+
+  "name": "BlockFacebook",
+  "description": "This extension reder",
+  "version": "1.0",
+
+  "background": {
+    "scripts": ["background.js"]
+    },
+
+    "permissions": [ "tabs", "idle", "webRequest", "webRequestBlocking",
+    "https://www.facebook.com/*",
+    "http://www.facebook.com/*",
+    "http://localhost:8080/*"
+    ]
+  }
