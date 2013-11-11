@@ -1,0 +1,23 @@
+{
+  "manifest_version": 2,
+  "name": "Block Facebook",
+  "description": "Block the Facebook",
+  "version": "0.2",
+
+  "background": {
+      "scripts": ["background.js"]
+  },
+
+  "permissions": [ 
+      "tabs", 
+      "idle", 
+      "webRequest", 
+      "webRequestBlocking",
+      "https://www.facebook.com/*",
+      "http://www.facebook.com/*",
+      "http://localhost:8080/*",
+      "http://itp.nyu.edu/~ps2409/sinatra/blockFacebook_server/update",
+      "http://itp.nyu.edu/~ps2409/sinatra/blockFacebook_server/AY",
+      "http://itp.nyu.edu/~ps2409/sinatra/blockFacebook_server/AN"
+      ]
+}

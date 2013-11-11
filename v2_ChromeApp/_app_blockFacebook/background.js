@@ -4,73 +4,106 @@
 console.log('backgroud.js is running');
 
 // Update timer data every UPDATE_INTERVAL seconds
-var UPDATE_INTERVAL = 1;
+var UPDATE_INTERVAL = 2;
 setInterval(updateData, UPDATE_INTERVAL * 1000);
-var timeOnFacebook = 0;
-var limitTime = 300;
-var tabID;
+var resp;
+var port;
+var timerA = 'N';
+var timerB = 'N';
+var timerA0 = timerA;
+var timerB0 = timerB;
+var connectionId = -1;
+var portOpen = false;
+
+// check the ports
+chrome.serial.getPorts(function(ports) {
+	port = ports[5];
+	console.log(port);
+
+	// open the prots
+	chrome.serial.open(port, function onOpen(openInfo) {
+		connectionId = openInfo.connectionId;
+			console.log("connectionId"+connectionId);
+	  		if (connectionId == -1) {
+	    		console.log('Could not open');
+	    		return;
+	  		}
+		console.log("serial port open ");
+		portOpen = true;
+	});
+});
+
 
 // Update the data
 function updateData() {
-	// Only count time if Chrome has focus
-	chrome.windows.getLastFocused(function (window) {
-		if (window === undefined) {
-			console.log("facebook is close");
-			httpGet("http://localhost:8080/?on_view=N");
-			return;
+	var request = new XMLHttpRequest();
+	request.open("GET","http://itp.nyu.edu/~ps2409/sinatra/blockFacebook_server/update",true);
+	request.onreadystatechange = function() {
+		if (request.readyState == 4) {
+			resp = request.responseText;
+			//console.log(resp);
+			if (portOpen){
+			control_timer();
 		}
-		else if (window.focused) {
-			// Only count time if system has not been idle for 30 seconds
-			chrome.idle.queryState(30, function (state) {
-				if (state === "active") {
-					chrome.tabs.query({'active': true, 'lastFocusedWindow': true}, function (arrayOfTabs) {
-						var activeTab = arrayOfTabs[0].url;
-						tabID = arrayOfTabs[0].id;
-			  			// console.log('current tab: ', activeTab);
-			  			var temp = activeTab.match("facebook");
-			  			if(temp != null ){
-			  				console.log("facebook is open");
-			  				timeOnFacebook += UPDATE_INTERVAL;
-			  				console.log("sec: ", timeOnFacebook);
+		}
+	}
+	request.send();
 
-			  				// redirect to another page
-			  				if(timeOnFacebook > limitTime){
-			  					console.log("redirect");
-			  					//chrome.tabs.update(null, {url: "http://www.this-page-intentionally-left-blank.org/"}); // redirect
-			  					chrome.tabs.remove(tabID); //close
-			  				}
-
-			  				// send httpGetRequest to server
-			  				httpGet("http://localhost:8080/?on_view=Y");
-			  			}
-			  			else {
-			  				console.log("facebook is close");
-			  				httpGet("http://localhost:8080/?on_view=N");
-			  			}
-			  		});
-				}
-			});
+	// read the data from servo
+	if (connectionId != -1) {
+		chrome.serial.read(connectionId, 1, onRead);
+	}
 }
-});
-// check if turn off the sand timer
-checkTurnOffSandTimer();
+
+function control_timer(){
+	// the status of A
+	timerA = resp.charAt(resp.indexOf('A')+2);
+	if(timerA != timerA0){
+		timerA0 = timerA;
+  		// send value to serial port
+  		console.log("send value to serial port;  timerA: "+timerA);
+  		var buffer = new ArrayBuffer(timerA.length*2); // 2 bytes for N/Y
+  		var bufView = new Uint16Array(buffer);
+		for (var i=0, strLen=timerA.length; i<strLen; i++) {
+		    bufView[i] = timerA.charCodeAt(i);
+		}
+  		chrome.serial.write(connectionId, buffer, function afterSent(){
+  			console.log("sent A");
+  		});
+	}
+
+	// the status of B
+	timerB = resp.charAt(resp.indexOf('B')+2);
+	if(timerB != timerB0){
+		timerB0 = timerB;
+  		// send value to serial port
+  		console.log("send value to serial port;  timerB: "+timerB);
+  		var bufferB = new ArrayBuffer(timerB.length*2); // 2 bytes for N/Y
+  		var bufViewB = new Uint16Array(bufferB);
+		for (var i=0, strLen=timerB.length; i<strLen; i++) {
+		    bufViewB[i] = timerB.charCodeAt(i);
+		}
+  		chrome.serial.write(connectionId, bufferB, function afterSent(){
+  			console.log("sent B");
+  		});
+	}	
+}
+
+function onRead(readInfo){
+	var dataFromTimer = String.fromCharCode.apply(null, new Uint8Array(readInfo.data));
+	if(dataFromTimer.length !=0){
+		console.log("dataFromTimer:"+dataFromTimer+"+!");
+		if(dataFromTimer == "C"){
+			// send httpGetRequest to server
+			httpGet("http://itp.nyu.edu/~ps2409/sinatra/blockFacebook_server/AC");// change to BC
+			console.log("AC");
+		}
+	}
 }
 
 function httpGet(theUrl){
 	var xmlHttp = null;
-
 	xmlHttp = new XMLHttpRequest();
-	xmlHttp.open( "GET", theUrl, false );
-	xmlHttp.send( null );
+	xmlHttp.open( "GET", theUrl, true );
+	xmlHttp.send();
 } 
-
-function checkTurnOffSandTimer(){
-	var req = new XMLHttpRequest();
-    req.open('GET', 'http://localhost:8080/', false); 
-    req.send();
-    if(req.status == 200) {
-        //console.log(req.responseText);
-        //chrome.tabs.remove(tabID); //close
-        chrome.tabs.update(null, {url: "http://itp.nyu.edu/~ps2409/BlockFacebook/BlockFacebook.html"}); // redirect
-    }
-}

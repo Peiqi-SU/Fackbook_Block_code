@@ -1,17 +1,25 @@
 {
   "manifest_version": 2,
+  "name": "Block Facebook",
+  "description": "Block the Facebook",
+  "version": "0.2",
+  "app":{
+    "background": {
+      "scripts": ["background.js"]
+      }
+  },
 
-  "name": "BlockFacebook",
-  "description": "This extension reder",
-  "version": "1.0",
+  "icons": {
+    "16": "icon.png",
+    "128": "icon.png"
+  },
 
-  "background": {
-    "scripts": ["background.js"]
-    },
-
-    "permissions": [ "tabs", "idle", "webRequest", "webRequestBlocking",
-    "https://www.facebook.com/*",
-    "http://www.facebook.com/*",
-    "http://localhost:8080/*"
-    ]
-  }
+  "permissions": [ 
+      "serial",
+      "https://www.google.com/",
+      "http://itp.nyu.edu/~ps2409/sinatra/blockFacebook_server/update",
+      "http://itp.nyu.edu/~ps2409/sinatra/blockFacebook_server/AC",
+      "http://itp.nyu.edu/~ps2409/sinatra/blockFacebook_server/BC",
+      "http://localhost:8080/*"
+      ]
+}
