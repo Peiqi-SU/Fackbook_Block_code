@@ -9,6 +9,7 @@ setInterval(updateData, UPDATE_INTERVAL * 1000);
 var timeOnFacebook = 0;
 var limitTime = 300;
 var tabID;
+var resp;
 
 // Update the data
 function updateData() {
@@ -65,8 +66,9 @@ function httpGet(theUrl){
 
 // redirect to a new page if overtime
 function checkTurnOffSandTimer(){
-	var req = new XMLHttpRequest();
-	req.open('GET', 'http://itp.nyu.edu/~ps2409/sinatra/blockFacebook_server/update', true);
+	var req = null;
+	req = new XMLHttpRequest();
+	req.open("GET", "http://itp.nyu.edu/~ps2409/sinatra/blockFacebook_server/update", true);
 	req.onreadystatechange = function() {
 		if (req.readyState == 4) {
 			resp = req.responseText;
@@ -76,6 +78,6 @@ function checkTurnOffSandTimer(){
 				chrome.tabs.update(null, {url: "http://itp.nyu.edu/~ps2409/BlockFacebook/BlockFacebook.html"}); // redirect
 			}
 		}
-		req.send();
 	}
+	req.send();
 }

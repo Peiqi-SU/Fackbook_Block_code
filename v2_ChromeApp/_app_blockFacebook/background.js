@@ -36,6 +36,7 @@ chrome.serial.getPorts(function(ports) {
 
 // Update the data
 function updateData() {
+	// console.log("interval");
 	var request = new XMLHttpRequest();
 	request.open("GET","http://itp.nyu.edu/~ps2409/sinatra/blockFacebook_server/update",true);
 	request.onreadystatechange = function() {
@@ -94,6 +95,7 @@ function onRead(readInfo){
 	if(dataFromTimer.length !=0){
 		console.log("dataFromTimer:"+dataFromTimer+"+!");
 		if(dataFromTimer == "C"){
+			UPDATE_INTERVAL = 5;
 			// send httpGetRequest to server
 			httpGet("http://itp.nyu.edu/~ps2409/sinatra/blockFacebook_server/AC");// change to BC
 			console.log("AC");
