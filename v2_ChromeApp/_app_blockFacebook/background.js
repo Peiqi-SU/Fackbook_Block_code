@@ -4,7 +4,7 @@
 console.log('backgroud.js is running');
 
 // Update timer data every UPDATE_INTERVAL seconds
-var UPDATE_INTERVAL = 2;
+var UPDATE_INTERVAL = 1;
 setInterval(updateData, UPDATE_INTERVAL * 1000);
 var resp;
 var port;
@@ -95,10 +95,14 @@ function onRead(readInfo){
 	if(dataFromTimer.length !=0){
 		console.log("dataFromTimer:"+dataFromTimer+"+!");
 		if(dataFromTimer == "C"){
-			UPDATE_INTERVAL = 5;
 			// send httpGetRequest to server
 			httpGet("http://itp.nyu.edu/~ps2409/sinatra/blockFacebook_server/AC");// change to BC
 			console.log("AC");
+		}
+		if(dataFromTimer == "c"){
+			// send httpGetRequest to server
+			httpGet("http://itp.nyu.edu/~ps2409/sinatra/blockFacebook_server/BC");// change to BC
+			console.log("BC");
 		}
 	}
 }

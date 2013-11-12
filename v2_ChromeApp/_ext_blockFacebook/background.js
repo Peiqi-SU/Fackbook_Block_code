@@ -4,7 +4,7 @@
 console.log('backgroud.js is running');
 
 // Update timer data every UPDATE_INTERVAL seconds
-var UPDATE_INTERVAL = 2;
+var UPDATE_INTERVAL = 1;
 setInterval(updateData, UPDATE_INTERVAL * 1000);
 var timeOnFacebook = 0;
 var limitTime = 300;
